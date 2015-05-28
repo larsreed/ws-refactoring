@@ -144,9 +144,7 @@ public class OpptellingOgStyringOgRapporteringForStatusJobb {
         /** Formater data for utskrift innenfor en eksisterende kontekst.  */
         public void write() {
             writeTableHead(this.tableName, this.cols, this.list.size(), this.titles);
-            for (final T[] row : this.list) {
-                writeTableRow(row);
-            }
+            this.list.stream().forEach(this::writeTableRow);
         }
 
 
@@ -227,8 +225,7 @@ public class OpptellingOgStyringOgRapporteringForStatusJobb {
                        final String underskrift2,
                        final String underskrift3) throws IOException {
         final String dtForm=
-            new SimpleDateFormat((new String("dd.MM.yyyy") + " " + new String("HH:mm")))
-                .format(new Date());
+            new SimpleDateFormat("dd.MM.yyyy HH:mm").format(new Date());
         addIfDefined(overskrift1);
         addIfDefined(overskrift2);
         addIfDefined(overskrift3);
@@ -236,7 +233,8 @@ public class OpptellingOgStyringOgRapporteringForStatusJobb {
         addData("Statusfix", dtForm);
         addData(); // Legger inn tom linje
         addData(); // Legger inn tom linje
-        final DocumentTable<String> resultatTabell = new DocumentTable<String>("Resultat", this.resultatArr.length);
+        final DocumentTable<String> resultatTabell = new DocumentTable<>("Resultat",
+                                                                         this.resultatArr.length);
 
         resultatTabell.addHeadings(this.resultatArr);
         for (int i=1; i< ANTALL_STEG; i++) { // Steg 0 rapporteres ikke
@@ -251,20 +249,16 @@ public class OpptellingOgStyringOgRapporteringForStatusJobb {
             };
             resultatTabell.addLine(arr);
         }
-        resultatTabell.addLine(new String[] {
-             TOM_STRENG, TOM_STRENG, TOM_STRENG, TOM_STRENG}
-        );
-        resultatTabell.addLine(new String[] {
-           "Antall saker",
-           TOM_STRENG + this.antallSaker,
-           TOM_STRENG,
-           TOM_STRENG
-        });
+        resultatTabell.addLine(TOM_STRENG, TOM_STRENG, TOM_STRENG, TOM_STRENG);
+        resultatTabell.addLine("Antall saker",
+                               TOM_STRENG + this.antallSaker,
+                               TOM_STRENG,
+                               TOM_STRENG);
         addTable(resultatTabell);
         final DocumentTable<String> meldingsTabell =
             new DocumentTable<>("Meldinger", 2);
         int i= 0;
-        meldingsTabell.addHeadings(new String[] {TOM_STRENG, TOM_STRENG});
+        meldingsTabell.addHeadings(TOM_STRENG, TOM_STRENG);
         for (final String s : this.messages) {
             i++;
             final String[] arr= new String[] {
@@ -278,12 +272,8 @@ public class OpptellingOgStyringOgRapporteringForStatusJobb {
         addIfDefined(underskrift1);
         addIfDefined(underskrift2);
         addIfDefined(underskrift3);
-        for (final String[] entry : this.reportData) {
-            writeData(entry);
-        }
-        for (final DocumentTable<String> table : this.tables) {
-            table.write();
-        }
+        this.reportData.forEach(this::writeData);
+        this.tables.forEach(DocumentTable<String>::write);
         this.data= this.contents.toString().replaceAll("[ \t]+\n", "\n");
         save(new File(("statusfix."
                 + new SimpleDateFormat("yyMMdd-HHmmss").format(new Date())
