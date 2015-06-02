@@ -17,7 +17,7 @@ import no.support.batch.DocumentTable;
  * Holder orden på tellere, trådstyring og rapportering av endelig resultat
  * for kjøring av statusjobben.
  */
-public class OpptellingOgStyringOgRapporteringForStatusJobb {
+public class PurreJobbResultat {
     // Tellerne benytter AtomicInteger for å slippe synkronisering.
 
 
@@ -69,7 +69,7 @@ public class OpptellingOgStyringOgRapporteringForStatusJobb {
      * Default constructor.
      * @param debug Debugmodus?
      */
-    public OpptellingOgStyringOgRapporteringForStatusJobb(final boolean debug) {
+    public PurreJobbResultat(final boolean debug) {
         super();
         this.debug= debug;
         final int step= ANTALL_STEG;

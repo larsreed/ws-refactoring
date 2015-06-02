@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 public class PurreJobbSystemTest {
 
     /** Testobjekt. */
-    private static OpptellingOgStyringOgRapporteringForStatusJobb res;
+    private static PurreJobbResultat res;
 
     /**
      * Kjør jobben.

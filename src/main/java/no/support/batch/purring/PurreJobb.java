@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Forretningslogikken er utelatt her (den kan sikkert legges på med run time
  * weaving av aspekter hvis vi trenger den :-).
  *
- * Jobben har en instans av {@link OpptellingOgStyringOgRapporteringForStatusJobb}
+ * Jobben har en instans av {@link PurreJobbResultat}
  * som benyttes for synkronisering mellom tråder, rapportering av resultat osv.
  * Gisp.
  */
@@ -43,9 +43,9 @@ public class PurreJobb extends Thread {
     static AtomicInteger neste= new AtomicInteger(FIRST_NO);
 
     /** Det er denne vi jobber med... */
-    OpptellingOgStyringOgRapporteringForStatusJobb resultat;
+    PurreJobbResultat resultat;
     /** Det er denne vi jobber med... */
-    OpptellingOgStyringOgRapporteringForStatusJobb jobCtrl;
+    PurreJobbResultat jobCtrl;
 
     /** Ha med debug? */
     private final boolean withDebug;
@@ -84,9 +84,9 @@ public class PurreJobb extends Thread {
     class Producer implements Runnable {
 
         /** Jobbstyring. */
-        private final OpptellingOgStyringOgRapporteringForStatusJobb jobControl;
+        private final PurreJobbResultat jobControl;
         /** Rapportering. */
-        private final OpptellingOgStyringOgRapporteringForStatusJobb result;
+        private final PurreJobbResultat result;
         /** Hvilket steg er dette? */
         private final int stepNo;
 
@@ -98,8 +98,8 @@ public class PurreJobb extends Thread {
          * @param result Tellere
          */
         Producer(final int stepNo,
-                 final OpptellingOgStyringOgRapporteringForStatusJobb jobCtrl,
-                 final OpptellingOgStyringOgRapporteringForStatusJobb result) {
+                 final PurreJobbResultat jobCtrl,
+                 final PurreJobbResultat result) {
             this.stepNo= stepNo;
             this.jobControl= jobCtrl;
             this.result= result;
@@ -135,9 +135,9 @@ public class PurreJobb extends Thread {
     class Consumer implements Runnable {
 
         /** Jobbstyring. */
-        private final OpptellingOgStyringOgRapporteringForStatusJobb jobControl;
+        private final PurreJobbResultat jobControl;
         /** Tellere. */
-        private final OpptellingOgStyringOgRapporteringForStatusJobb result;
+        private final PurreJobbResultat result;
         /** Hvilket steg er dette? */
         private final int stepNo;
 
@@ -149,8 +149,8 @@ public class PurreJobb extends Thread {
          * @param result Tellere
          */
         Consumer(final int stepNo,
-                 final OpptellingOgStyringOgRapporteringForStatusJobb jobCtrl,
-                 final OpptellingOgStyringOgRapporteringForStatusJobb result) {
+                 final PurreJobbResultat jobCtrl,
+                 final PurreJobbResultat result) {
             this.stepNo= stepNo;
             this.jobControl= jobCtrl;
             this.result= result;
@@ -212,8 +212,8 @@ public class PurreJobb extends Thread {
      */
     @Override
     public void run() {
-        final OpptellingOgStyringOgRapporteringForStatusJobb ctrl=
-            new OpptellingOgStyringOgRapporteringForStatusJobb(this.withDebug);
+        final PurreJobbResultat ctrl=
+            new PurreJobbResultat(this.withDebug);
         this.jobCtrl= ctrl;
         this.resultat= ctrl;
         this.jobCtrl.threadsUp(0, this);
