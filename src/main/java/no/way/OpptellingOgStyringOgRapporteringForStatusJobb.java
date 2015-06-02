@@ -144,7 +144,7 @@ public class OpptellingOgStyringOgRapporteringForStatusJobb {
         /** Formater data for utskrift innenfor en eksisterende kontekst.  */
         public void write() {
             writeTableHead(this.tableName, this.cols, this.list.size(), this.titles);
-            this.list.stream().forEach(this::writeTableRow);
+            this.list.forEach(this::writeTableRow);
         }
 
 
