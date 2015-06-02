@@ -294,11 +294,10 @@ public class OpptellingOgStyringOgRapporteringForStatusJobb {
      * Tell opp antall totalt.
      *
      * @param steg Hvilket steg
-     * @param pAntall Antall nye
      * @return Antall totalt etter oppdatering
      */
-    public int incTotal(final int steg, final int pAntall) {
-        return this.total[steg].addAndGet(pAntall);
+    public int incTotal(final int steg) {
+        return this.total[steg].incrementAndGet();
     }
 
     /**
