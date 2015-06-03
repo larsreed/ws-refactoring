@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import no.support.batch.BatchResult;
+import no.support.batch.DocumentHeaderFooter;
 
 
 /**
@@ -245,8 +246,10 @@ public class PurreJobb extends Thread {
             }
         }
         try {
-            this.resultat.report(this.toString(), new Date().toString(),
-                        "lre", "", "", "");
+            this.resultat.report(
+                                        new DocumentHeaderFooter(true, true, this.toString(),
+                                                                 new Date().toString(), "lre", "",
+                                                                 "", ""));
         }
         catch (final IOException e) {
             e.printStackTrace();

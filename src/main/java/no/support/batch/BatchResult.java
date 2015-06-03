@@ -72,25 +72,15 @@ public class BatchResult {
 
     /**
      * Lag rapport.
-     * @param overskrift1 Topptekst
-     * @param overskrift2 Topptekst
-     * @param overskrift3 Topptekst
-     * @param underskrift1 Bunntekst
-     * @param underskrift2 Bunntekst
-     * @param underskrift3 Bunntekst
-     * @throws IOException Uff
+     *
+     * @param documentHeaderFooter@throws IOException Uff
      */
-    public void report(final String overskrift1,
-                       final String overskrift2,
-                       final String overskrift3,
-                       final String underskrift1,
-                       final String underskrift2,
-                       final String underskrift3) throws IOException {
+    public void report(final DocumentHeaderFooter documentHeaderFooter) throws IOException {
         final String dtForm=
             new SimpleDateFormat("dd.MM.yyyy HH:mm").format(new Date());
-        addIfDefined(overskrift1);
-        addIfDefined(overskrift2);
-        addIfDefined(overskrift3);
+        addIfDefined(documentHeaderFooter.getOverskrift1());
+        addIfDefined(documentHeaderFooter.getOverskrift2());
+        addIfDefined(documentHeaderFooter.getOverskrift3());
         addData(); // Legger inn tom linje
         addData("Statusfix", dtForm);
         addData(); // Legger inn tom linje
@@ -98,9 +88,9 @@ public class BatchResult {
         addTable(addResultTable());
         addTable(addMessageTable());
         addData(); // Legger inn tom linje
-        addIfDefined(underskrift1);
-        addIfDefined(underskrift2);
-        addIfDefined(underskrift3);
+        addIfDefined(documentHeaderFooter.getUnderskrift1());
+        addIfDefined(documentHeaderFooter.getUnderskrift2());
+        addIfDefined(documentHeaderFooter.getUnderskrift3());
         this.reportData.forEach(this::writeData);
         this.tables.forEach(table -> table.write(this.contents));
         this.data= this.contents.toString().replaceAll("[ \t]+\n", "\n");
