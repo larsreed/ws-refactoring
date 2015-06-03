@@ -24,16 +24,13 @@ public class BatchResult implements ThreadControl {
     protected final AtomicInteger[] total;
     /** 1 feilteller for hvert steg. */
     protected final AtomicInteger[] errCounter;
-    /** 1 trådteller for hvert steg. */
-    protected final AtomicInteger[] threadCounter;
-    /** 1 trådflagg for hvert steg. */
-    protected final boolean[] threadStarted;
     /** Array med overskriftene til resultattabellen. */
     protected final String[] resultatArr;
     /** Debugmodus? */
     protected final boolean debug;
     /** Holder data under skriving. */
     protected final StringBuilder contents;
+    protected final ThreadControl batchControl;
     /** Meldingslager. */
     private final LinkedList<String> messages= new LinkedList<>();
     /** Holder på feltverdier. */
@@ -58,13 +55,11 @@ public class BatchResult implements ThreadControl {
         this.waitCounter= new AtomicInteger[step];
         this.total = new AtomicInteger[step];
         this.errCounter= new AtomicInteger[step];
-        this.threadCounter= new AtomicInteger[step];
-        this.threadStarted= new boolean[step];
+        this.batchControl = new BatchControl(this.steps);
         for (int i=0; i< step; i++) {
             this.waitCounter[i]= new AtomicInteger();
             this.total[i]= new AtomicInteger();
             this.errCounter[i]= new AtomicInteger();
-            this.threadCounter[i]= new AtomicInteger();
         }
         final String xtra= debug? "Ventet" : TOM_STRENG;
         this.resultatArr= new String[] { "Steg", "Antall", "Feil", xtra  };
@@ -73,7 +68,8 @@ public class BatchResult implements ThreadControl {
     /**
      * Lag rapport.
      *
-     * @param documentHeaderFooter@throws IOException Uff
+     * @param documentHeaderFooter
+     * @throws IOException Uff
      */
     public void report(final DocumentHeaderFooter documentHeaderFooter) throws IOException {
         final String dtForm=
@@ -170,9 +166,7 @@ public class BatchResult implements ThreadControl {
      */
     @Override
     public int threadsUp(final int step, final Object caller) {
-        this.threadCounter[step].incrementAndGet();
-        this.threadStarted[step]= true;
-        return getThreadCount();
+        return batchControl.threadsUp(step, caller);
     }
 
     /**
@@ -184,8 +178,7 @@ public class BatchResult implements ThreadControl {
      */
     @Override
     public int threadsDown(final int step, final Object caller) {
-        this.threadCounter[step].decrementAndGet();
-        return getThreadCount();
+        return batchControl.threadsDown(step, caller);
     }
 
     /**
@@ -195,11 +188,7 @@ public class BatchResult implements ThreadControl {
      */
     @Override
     public int getThreadCount() {
-        int sum=0;
-        for (final AtomicInteger i : this.threadCounter) {
-            sum+= i.get();
-        }
-        return sum;
+        return batchControl.getThreadCount();
     }
 
     /**
@@ -238,9 +227,7 @@ public class BatchResult implements ThreadControl {
      */
     @Override
     public synchronized boolean stepDone(final int lastStep) {
-        return this.threadStarted[lastStep]
-               &&
-               (0 >= this.threadCounter[lastStep].get());
+        return batchControl.stepDone(lastStep);
     }
 
     /**
