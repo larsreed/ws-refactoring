@@ -8,31 +8,22 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Superklasse for batchresultater.
  */
-public class BatchResult implements ThreadControl {
+public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
     /** Tom streng. */
     protected static final String TOM_STRENG= BatchResult.EMPTY_STRING;
     /** Tom streng. */
     private static final String EMPTY_STRING= "";
-    /** 1 vente-teller for hvert steg. */
-    protected final AtomicInteger[] waitCounter;
-    /** 1 OK-teller for hvert steg. */
-    protected final AtomicInteger[] total;
-    /** 1 feilteller for hvert steg. */
-    protected final AtomicInteger[] errCounter;
     /** Array med overskriftene til resultattabellen. */
     protected final String[] resultatArr;
-    /** Debugmodus? */
-    protected final boolean debug;
     /** Holder data under skriving. */
     protected final StringBuilder contents;
     protected final ThreadControl batchControl;
-    /** Meldingslager. */
-    private final LinkedList<String> messages= new LinkedList<>();
+    protected final ResultCounter batchCounter;
+    protected final SimpleLog batchLogger;
     /** Holder på feltverdier. */
     private final List<String[]> reportData= new LinkedList<>();
     /** Referanser til tabeller. */
@@ -50,17 +41,10 @@ public class BatchResult implements ThreadControl {
     public BatchResult(final int step, final boolean debug) {
         super();
         this.steps = step;
-        this.debug= debug;
+        batchLogger = new BatchLogger(debug);
         this.contents= new StringBuilder();
-        this.waitCounter= new AtomicInteger[step];
-        this.total = new AtomicInteger[step];
-        this.errCounter= new AtomicInteger[step];
+        batchCounter = new BatchCounter(this.steps);
         this.batchControl = new BatchControl(this.steps);
-        for (int i=0; i< step; i++) {
-            this.waitCounter[i]= new AtomicInteger();
-            this.total[i]= new AtomicInteger();
-            this.errCounter[i]= new AtomicInteger();
-        }
         final String xtra= debug? "Ventet" : TOM_STRENG;
         this.resultatArr= new String[] { "Steg", "Antall", "Feil", xtra  };
     }
@@ -100,7 +84,7 @@ public class BatchResult implements ThreadControl {
             new DocumentTable<>("Meldinger", 2);
         int i= 0;
         meldingsTabell.addHeadings(TOM_STRENG, TOM_STRENG);
-        for (final String s : this.messages) {
+        for (final String s : this.batchLogger.getMessages()) {
             i++;
             final String[] arr= new String[] {
                 TOM_STRENG + i,
@@ -122,9 +106,9 @@ public class BatchResult implements ThreadControl {
                                + i;
             final String[] arr= new String[] {
                 steg,
-                TOM_STRENG+this.total[i].get(),
-                TOM_STRENG+this.errCounter[i].get(),
-                this.debug? TOM_STRENG+this.waitCounter[i].get() : TOM_STRENG
+                TOM_STRENG+ this.batchCounter.getTotal(i),
+                TOM_STRENG+ this.batchCounter.getErr(i),
+                this.batchLogger.isDebug() ? TOM_STRENG+ this.batchCounter.getWait(i) : TOM_STRENG
             };
             resultatTabell.addLine(arr);
         }
@@ -143,8 +127,9 @@ public class BatchResult implements ThreadControl {
      * @param steg Hvilket steg
      * @return Antall totalt etter oppdatering
      */
+    @Override
     public int incTotal(final int steg) {
-        return this.total[steg].incrementAndGet();
+        return batchCounter.incTotal(steg);
     }
 
     /**
@@ -153,8 +138,9 @@ public class BatchResult implements ThreadControl {
      * @param steg Hvilket steg
      * @return Antall totalt etter oppdatering
      */
+    @Override
     public int incErr(final int steg) {
-        return this.errCounter[steg].incrementAndGet();
+        return batchCounter.incErr(steg);
     }
 
     /**
@@ -196,14 +182,9 @@ public class BatchResult implements ThreadControl {
      *
      * @param info Alt som skal logges
      */
+    @Override
     public synchronized void debug(final Object... info) {
-        final String s= concat(" ", info);
-        if (!((s == null || s.length()==0 || s.trim().length() == 0))) {
-            final Object[] s1= { s };
-            if ( this.debug ) {
-                System.err.println(concat(" ", s1));
-            }
-        }
+        batchLogger.debug(info);
     }
 
     /**
@@ -211,12 +192,9 @@ public class BatchResult implements ThreadControl {
      *
      * @param info Alt som skal logges
      */
+    @Override
     public synchronized void log(final Object... info) {
-        final String s= concat(" ", info);
-        if (!((s == null || s.length()==0 || s.trim().length() == 0))) {
-            this.messages.add(s);
-        }
-        debug(info);
+        batchLogger.log(info);
     }
 
     /**
@@ -235,8 +213,9 @@ public class BatchResult implements ThreadControl {
      *
      * @param steg Hvilket steg
      */
+    @Override
     public void addWait(final int steg) {
-        this.waitCounter[steg].incrementAndGet();
+        batchCounter.addWait(steg);
     }
 
     /**
@@ -306,34 +285,14 @@ public class BatchResult implements ThreadControl {
     }
 
     /**
-     * Slå sammen strenger til én lang streng.
-     *
-     * @param separator Hvordan delene skal skilles av
-     * @param args Alt som skal skjøtes
-     * @return Herlig røre (<code>null</code> hvis ingen input)
-     */
-    private String concat(final String separator, final Object... args) {
-        if ( args==null ) return null;
-        final StringBuilder buf= new StringBuilder();
-        int rest= args.length;
-        for (final Object object : args) {
-            buf.append(object);
-            rest--;
-            if ( rest> 0 ) {
-                buf.append(separator);
-            }
-        }
-        return buf.toString();
-    }
-
-    /**
      * Hent teller.
      *
      * @param step Steg nummer
      * @return Antall
      */
+    @Override
     public int getTotal(final int step) {
-        return this.total[step].get();
+        return batchCounter.getTotal(step);
     }
 
     /**
@@ -342,17 +301,28 @@ public class BatchResult implements ThreadControl {
      * @param step Steg nummer
      * @return Antall
      */
+    @Override
     public int getErr(final int step) {
-        return this.errCounter[step].get();
+        return batchCounter.getErr(step);
+    }
+
+    @Override
+    public int getWait(final int step) {
+        return batchCounter.getWait(step);
     }
 
     /**
      * Hent meldinger.
      *
      * @return messages
-     * @see #messages
      */
+    @Override
     public synchronized List<String> getMessages() {
-        return this.messages;
+        return batchLogger.getMessages();
+    }
+
+    @Override
+    public boolean isDebug() {
+        return this.batchLogger.isDebug();
     }
 }
