@@ -7,6 +7,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import no.support.batch.BatchResult;
 
 
 /**
@@ -45,7 +46,7 @@ public class PurreJobb extends Thread {
     /** Det er denne vi jobber med... */
     PurreJobbResultat resultat;
     /** Det er denne vi jobber med... */
-    PurreJobbResultat jobCtrl;
+    BatchResult jobCtrl;
 
     /** Ha med debug? */
     private final boolean withDebug;
@@ -84,9 +85,9 @@ public class PurreJobb extends Thread {
     class Producer implements Runnable {
 
         /** Jobbstyring. */
-        private final PurreJobbResultat jobControl;
+        private final BatchResult jobControl;
         /** Rapportering. */
-        private final PurreJobbResultat result;
+        private final BatchResult result;
         /** Hvilket steg er dette? */
         private final int stepNo;
 
@@ -98,8 +99,8 @@ public class PurreJobb extends Thread {
          * @param result Tellere
          */
         Producer(final int stepNo,
-                 final PurreJobbResultat jobCtrl,
-                 final PurreJobbResultat result) {
+                 final BatchResult jobCtrl,
+                 final BatchResult result) {
             this.stepNo= stepNo;
             this.jobControl= jobCtrl;
             this.result= result;
@@ -135,7 +136,7 @@ public class PurreJobb extends Thread {
     class Consumer implements Runnable {
 
         /** Jobbstyring. */
-        private final PurreJobbResultat jobControl;
+        private final BatchResult jobControl;
         /** Tellere. */
         private final PurreJobbResultat result;
         /** Hvilket steg er dette? */
@@ -149,7 +150,7 @@ public class PurreJobb extends Thread {
          * @param result Tellere
          */
         Consumer(final int stepNo,
-                 final PurreJobbResultat jobCtrl,
+                 final BatchResult jobCtrl,
                  final PurreJobbResultat result) {
             this.stepNo= stepNo;
             this.jobControl= jobCtrl;
