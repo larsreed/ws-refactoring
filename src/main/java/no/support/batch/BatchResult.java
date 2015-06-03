@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Superklasse for batchresultater.
  */
-public class BatchResult {
+public class BatchResult implements ThreadControl {
     /** Tom streng. */
     protected static final String TOM_STRENG= BatchResult.EMPTY_STRING;
     /** Tom streng. */
@@ -168,6 +168,7 @@ public class BatchResult {
      * @param caller Hvem ringer
      * @return Antall tråder nå
      */
+    @Override
     public int threadsUp(final int step, final Object caller) {
         this.threadCounter[step].incrementAndGet();
         this.threadStarted[step]= true;
@@ -181,6 +182,7 @@ public class BatchResult {
      * @param caller Hvem ringer
      * @return Antall trår nå
      */
+    @Override
     public int threadsDown(final int step, final Object caller) {
         this.threadCounter[step].decrementAndGet();
         return getThreadCount();
@@ -191,6 +193,7 @@ public class BatchResult {
      *
      * @return Barnetråder
      */
+    @Override
     public int getThreadCount() {
         int sum=0;
         for (final AtomicInteger i : this.threadCounter) {
@@ -233,6 +236,7 @@ public class BatchResult {
      * @param lastStep Forrige steg
      * @return <code>true</code> hvis forrige steg er ferdig
      */
+    @Override
     public synchronized boolean stepDone(final int lastStep) {
         return this.threadStarted[lastStep]
                &&
