@@ -37,14 +37,18 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
      * Standard constructor.
      * @param step Antall steg i prosessen
      * @param debug Debug på?
+     * @param batchLogger Logger
+     * @param batchCounter Teller
+     * @param batchControl Kontrollmekanisme
      */
-    public BatchResult(final int step, final boolean debug) {
+    public BatchResult(final int step, final boolean debug, final BatchLogger batchLogger,
+                       final BatchCounter batchCounter, final BatchControl batchControl) {
         super();
         this.steps = step;
-        batchLogger = new BatchLogger(debug);
+        this.batchLogger = batchLogger;
         this.contents= new StringBuilder();
-        batchCounter = new BatchCounter(this.steps);
-        this.batchControl = new BatchControl(this.steps);
+        this.batchCounter = batchCounter;
+        this.batchControl = batchControl;
         final String xtra= debug? "Ventet" : TOM_STRENG;
         this.resultatArr= new String[] { "Steg", "Antall", "Feil", xtra  };
     }

@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import no.support.batch.BatchResult;
 import no.support.batch.DocumentHeaderFooter;
 import no.support.batch.ThreadControl;
+import no.support.batch.factory.ResultFactory;
 
 
 /**
@@ -216,7 +217,7 @@ public class PurreJobb extends Thread {
     @Override
     public void run() {
         final PurreJobbResultat ctrl=
-            new PurreJobbResultat(this.withDebug);
+                ResultFactory.createResult(PurreJobbResultat.class, this.withDebug);
         this.jobCtrl= ctrl;
         this.resultat= ctrl;
         this.jobCtrl.threadsUp(0, this);

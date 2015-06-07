@@ -2,6 +2,9 @@ package no.support.batch.purring;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import no.support.batch.BatchControl;
+import no.support.batch.BatchCounter;
+import no.support.batch.BatchLogger;
 import no.support.batch.DocumentTable;
 
 
@@ -26,7 +29,8 @@ public class PurreJobbResultat extends no.support.batch.BatchResult {
      * @param debug Debugmodus?
      */
     public PurreJobbResultat(final boolean debug) {
-        super(ANTALL_STEG, debug);
+        super(ANTALL_STEG, debug, new BatchLogger(debug), new BatchCounter(ANTALL_STEG),
+              new BatchControl(ANTALL_STEG));
     }
 
 
