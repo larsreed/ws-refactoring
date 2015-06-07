@@ -7,7 +7,7 @@ public class BatchLogger implements SimpleLog {
     /** Debugmodus? */
     private final boolean debug;
     /** Meldingslager. */
-    private final LinkedList<String> messages = new LinkedList<>();
+    private final List<String> messages = new LinkedList<>();
 
     public BatchLogger(final boolean debug) {
         this.debug = debug;

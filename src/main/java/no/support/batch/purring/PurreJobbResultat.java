@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import no.support.batch.BatchControl;
 import no.support.batch.BatchCounter;
 import no.support.batch.BatchLogger;
+import no.support.batch.BatchResult;
 import no.support.batch.DocumentTable;
 
 
@@ -56,8 +57,8 @@ public class PurreJobbResultat extends no.support.batch.BatchResult {
     @Override
     protected void addLocalResult(final DocumentTable<String> resultatTabell) {
         resultatTabell.addLine("Antall saker",
-                               TOM_STRENG + this.antallSaker,
-                               TOM_STRENG,
-                               TOM_STRENG);
+                               BatchResult.EMPTY_STRING + this.antallSaker,
+                               BatchResult.EMPTY_STRING,
+                               BatchResult.EMPTY_STRING);
     }
 }

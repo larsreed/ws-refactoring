@@ -14,9 +14,9 @@ import java.util.List;
  */
 public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
     /** Tom streng. */
-    protected static final String TOM_STRENG= BatchResult.EMPTY_STRING;
-    /** Tom streng. */
-    private static final String EMPTY_STRING= "";
+    public static final String EMPTY_STRING= "";
+    public static final char FIELD_SEP = '\t';
+    public static final char LINE_SEP = '\n';
     /** Array med overskriftene til resultattabellen. */
     protected final String[] resultatArr;
     /** Holder data under skriving. */
@@ -62,7 +62,7 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
         this.contents= new StringBuilder();
         this.batchCounter = batchCounter;
         this.batchControl = batchControl;
-        final String xtra= debug? "Ventet" : TOM_STRENG;
+        final String xtra= debug? "Ventet" : BatchResult.EMPTY_STRING;
         this.resultatArr= new String[] { "Steg", "Antall", "Feil", xtra  };
     }
 
@@ -99,11 +99,11 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
         final DocumentTable<String> meldingsTabell =
             new DocumentTable<>("Meldinger", 2);
         int i= 0;
-        meldingsTabell.addHeadings(TOM_STRENG, TOM_STRENG);
+        meldingsTabell.addHeadings(BatchResult.EMPTY_STRING, BatchResult.EMPTY_STRING);
         for (final String s : this.batchLogger.getMessages()) {
             i++;
             final String[] arr= new String[] {
-                TOM_STRENG + i,
+                BatchResult.EMPTY_STRING + i,
                 s
             };
             meldingsTabell.addLine(arr);
@@ -122,13 +122,14 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
                                + i;
             final String[] arr= new String[] {
                 steg,
-                TOM_STRENG+ this.batchCounter.getTotal(i),
-                TOM_STRENG+ this.batchCounter.getErr(i),
-                this.batchLogger.isDebug() ? TOM_STRENG+ this.batchCounter.getWait(i) : TOM_STRENG
+                BatchResult.EMPTY_STRING + this.batchCounter.getTotal(i),
+                BatchResult.EMPTY_STRING + this.batchCounter.getErr(i),
+                this.batchLogger.isDebug() ? BatchResult.EMPTY_STRING + this.batchCounter.getWait(i) : BatchResult.EMPTY_STRING
             };
             resultatTabell.addLine(arr);
         }
-        resultatTabell.addLine(TOM_STRENG, TOM_STRENG, TOM_STRENG, TOM_STRENG);
+        resultatTabell.addLine(BatchResult.EMPTY_STRING, BatchResult.EMPTY_STRING,
+                               BatchResult.EMPTY_STRING, BatchResult.EMPTY_STRING);
         addLocalResult(resultatTabell);
         return resultatTabell;
     }
@@ -281,11 +282,11 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
     private void writeData(final String... data) {
         if ( data!=null ) {
             for (final String string : data) {
-                this.contents.append(string==null? TOM_STRENG : string)
-                             .append('\t');
+                this.contents.append(string==null? BatchResult.EMPTY_STRING : string)
+                             .append(FIELD_SEP);
             }
         }
-        this.contents.append('\n');
+        this.contents.append(LINE_SEP);
     }
 
     /**
