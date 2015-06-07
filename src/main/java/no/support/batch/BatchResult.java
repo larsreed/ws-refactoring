@@ -33,6 +33,19 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
     /** Holder på data som en ganske vanlig streng. */
     private String data;
 
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(final String fileName) {
+        this.fileName = fileName;
+    }
+
+    /** Resultatfil. */
+    private String fileName = "statusfix."
+                              + new SimpleDateFormat("yyMMdd-HHmmss").format(new Date())
+                              + ".log";
+
     /**
      * Standard constructor.
      * @param step Antall steg i prosessen
@@ -78,9 +91,8 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
         this.reportData.forEach(this::writeData);
         this.tables.forEach(table -> table.write(this.contents));
         this.data= this.contents.toString().replaceAll("[ \t]+\n", "\n");
-        save(new File(("statusfix."
-                + new SimpleDateFormat("yyMMdd-HHmmss").format(new Date())
-                + ".log")));
+        final File resultFile = new File(fileName);
+        save(resultFile);
     }
 
     protected DocumentTable<String> addMessageTable() {
