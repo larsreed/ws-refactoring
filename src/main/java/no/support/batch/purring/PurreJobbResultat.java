@@ -14,16 +14,13 @@ import no.support.batch.DocumentTable;
  * for kjøring av statusjobben.
  */
 public class PurreJobbResultat extends no.support.batch.BatchResult {
-    // Tellerne benytter AtomicInteger for å slippe synkronisering.
-
 
     /** Antall steg totalt. */
-    public static final int ANTALL_STEG= 2+1;
+    private static final int ANTALL_STEG= 2+1;
 
     /** Antall saker berørt. */
     private final AtomicInteger antallSaker= new AtomicInteger(0);
-
-    // Tellerne benytter AtomicInteger for å slippe synkronisering.
+    // Tellere benytter AtomicInteger for å slippe synkronisering.
 
     /**
      * Default constructor.
@@ -41,6 +38,7 @@ public class PurreJobbResultat extends no.support.batch.BatchResult {
      * @param antSaker Antall nye saker
      * @return Antall saker totalt
      */
+    @SuppressWarnings("UnusedReturnValue")
     public int addSaker(final int antSaker) {
         return this.antallSaker.addAndGet(antSaker);
     }

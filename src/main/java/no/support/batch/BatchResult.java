@@ -12,18 +12,24 @@ import java.util.List;
 /**
  * Superklasse for batchresultater.
  */
-public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
+public abstract class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
+
     /** Tom streng. */
-    public static final String EMPTY_STRING= "";
-    public static final char FIELD_SEP = '\t';
-    public static final char LINE_SEP = '\n';
+    protected static final String EMPTY_STRING= "";
+    /** Feltskille. */
+    private static final String FIELD_SEP = "\t";
+    /** Linjeskille. */
+    private static final String LINE_SEP = "\n";
     /** Array med overskriftene til resultattabellen. */
-    protected final String[] resultatArr;
+    private final String[] resultatArr;
     /** Holder data under skriving. */
-    protected final StringBuilder contents;
-    protected final ThreadControl batchControl;
-    protected final ResultCounter batchCounter;
-    protected final SimpleLog batchLogger;
+    private final StringBuilder contents;
+    /** Synkronisering. */
+    private final ThreadControl batchControl;
+    /** Tellere. */
+    private final ResultCounter batchCounter;
+    /** Logging. */
+    private final SimpleLog batchLogger;
     /** Holder på feltverdier. */
     private final List<String[]> reportData= new LinkedList<>();
     /** Referanser til tabeller. */
@@ -33,17 +39,9 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
     /** Holder på data som en ganske vanlig streng. */
     private String data;
 
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(final String fileName) {
-        this.fileName = fileName;
-    }
-
     /** Resultatfil. */
     private String fileName = "statusfix."
-                              + new SimpleDateFormat("yyMMdd-HHmmss").format(new Date())
+                              + formatNow("yyMMdd-HHmmss")
                               + ".log";
 
     /**
@@ -54,8 +52,8 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
      * @param batchCounter Teller
      * @param batchControl Kontrollmekanisme
      */
-    public BatchResult(final int step, final boolean debug, final BatchLogger batchLogger,
-                       final BatchCounter batchCounter, final BatchControl batchControl) {
+    protected BatchResult(final int step, final boolean debug, final BatchLogger batchLogger,
+                          final BatchCounter batchCounter, final BatchControl batchControl) {
         super();
         this.steps = step;
         this.batchLogger = batchLogger;
@@ -63,31 +61,29 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
         this.batchCounter = batchCounter;
         this.batchControl = batchControl;
         final String xtra= debug? "Ventet" : BatchResult.EMPTY_STRING;
-        this.resultatArr= new String[] { "Steg", "Antall", "Feil", xtra  };
+        this.resultatArr= new String[]{ "Steg", "Antall", "Feil", xtra };
     }
 
     /**
      * Lag rapport.
      *
-     * @param documentHeaderFooter
+     * @param documentHeaderFooter Topp/bunntekster
      * @throws IOException Uff
      */
     public void report(final DocumentHeaderFooter documentHeaderFooter) throws IOException {
-        final String dtForm=
-            new SimpleDateFormat("dd.MM.yyyy HH:mm").format(new Date());
-        addIfDefined(documentHeaderFooter.getOverskrift1());
-        addIfDefined(documentHeaderFooter.getOverskrift2());
-        addIfDefined(documentHeaderFooter.getOverskrift3());
-        addData(); // Legger inn tom linje
-        addData("Statusfix", dtForm);
-        addData(); // Legger inn tom linje
-        addData(); // Legger inn tom linje
+        addIfDefined(documentHeaderFooter.getHeaderLeft());
+        addIfDefined(documentHeaderFooter.getHeaderCenter());
+        addIfDefined(documentHeaderFooter.getHeaderRight());
+        addEmptyLine();
+        addData("Statusfix", formatNow("dd.MM.yyyy HH:mm"));
+        addEmptyLine();
+        addEmptyLine();
         addTable(addResultTable());
         addTable(addMessageTable());
-        addData(); // Legger inn tom linje
-        addIfDefined(documentHeaderFooter.getUnderskrift1());
-        addIfDefined(documentHeaderFooter.getUnderskrift2());
-        addIfDefined(documentHeaderFooter.getUnderskrift3());
+        addEmptyLine();
+        addIfDefined(documentHeaderFooter.getFooterLeft());
+        addIfDefined(documentHeaderFooter.getFooterCenter());
+        addIfDefined(documentHeaderFooter.getFooterRight());
         this.reportData.forEach(this::writeData);
         this.tables.forEach(table -> table.write(this.contents));
         this.data= this.contents.toString().replaceAll("[ \t]+\n", "\n");
@@ -95,23 +91,26 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
         save(resultFile);
     }
 
-    protected DocumentTable<String> addMessageTable() {
-        final DocumentTable<String> meldingsTabell =
-            new DocumentTable<>("Meldinger", 2);
+    /** Formater "nå" som datostreng. */
+    private static String formatNow(final String pattern) {
+        return new SimpleDateFormat(pattern).format(new Date());
+    }
+
+    private void addEmptyLine() {
+        addData();
+    }
+
+    private DocumentTable<String> addMessageTable() {
+        final DocumentTable<String> meldingsTabell = new DocumentTable<>("Meldinger", 2);
         int i= 0;
         meldingsTabell.addHeadings(BatchResult.EMPTY_STRING, BatchResult.EMPTY_STRING);
         for (final String s : this.batchLogger.getMessages()) {
-            i++;
-            final String[] arr= new String[] {
-                BatchResult.EMPTY_STRING + i,
-                s
-            };
-            meldingsTabell.addLine(arr);
+            meldingsTabell.addLine(BatchResult.EMPTY_STRING + (++i), s);
         }
         return meldingsTabell;
     }
 
-    protected DocumentTable<String> addResultTable() {
+    private DocumentTable<String> addResultTable() {
         final DocumentTable<String> resultatTabell = new DocumentTable<>("Resultat",
                                                                          this.resultatArr.length);
 
@@ -120,13 +119,11 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
             final String steg= i + ". "
                                + "Steg "
                                + i;
-            final String[] arr= new String[] {
-                steg,
-                BatchResult.EMPTY_STRING + this.batchCounter.getTotal(i),
-                BatchResult.EMPTY_STRING + this.batchCounter.getErr(i),
-                this.batchLogger.isDebug() ? BatchResult.EMPTY_STRING + this.batchCounter.getWait(i) : BatchResult.EMPTY_STRING
-            };
-            resultatTabell.addLine(arr);
+            resultatTabell.addLine(steg,
+                                   BatchResult.EMPTY_STRING + this.batchCounter.getTotal(i),
+                                   BatchResult.EMPTY_STRING + this.batchCounter.getErr(i),
+                                   this.batchLogger.isDebug()? BatchResult.EMPTY_STRING + this.batchCounter.getWait(i)
+                                                             : BatchResult.EMPTY_STRING);
         }
         resultatTabell.addLine(BatchResult.EMPTY_STRING, BatchResult.EMPTY_STRING,
                                BatchResult.EMPTY_STRING, BatchResult.EMPTY_STRING);
@@ -134,30 +131,28 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
         return resultatTabell;
     }
 
-    protected void addLocalResult(final DocumentTable<String> resultatTabell) {
-        return;
-    }
+    protected abstract void addLocalResult(final DocumentTable<String> resultatTabell);
 
     /**
      * Tell opp antall totalt.
      *
-     * @param steg Hvilket steg
+     * @param step Hvilket steg
      * @return Antall totalt etter oppdatering
      */
     @Override
-    public int incTotal(final int steg) {
-        return batchCounter.incTotal(steg);
+    public int incTotal(final int step) {
+        return this.batchCounter.incTotal(step);
     }
 
     /**
      * Tell opp antall feil.
      *
-     * @param steg Hvilket steg
+     * @param step Hvilket steg
      * @return Antall totalt etter oppdatering
      */
     @Override
-    public int incErr(final int steg) {
-        return batchCounter.incErr(steg);
+    public int incErr(final int step) {
+        return this.batchCounter.incErr(step);
     }
 
     /**
@@ -201,7 +196,7 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
      */
     @Override
     public synchronized void debug(final Object... info) {
-        batchLogger.debug(info);
+        this.batchLogger.debug(info);
     }
 
     /**
@@ -211,7 +206,7 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
      */
     @Override
     public synchronized void log(final Object... info) {
-        batchLogger.log(info);
+        this.batchLogger.log(info);
     }
 
     /**
@@ -222,17 +217,17 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
      */
     @Override
     public synchronized boolean stepDone(final int lastStep) {
-        return batchControl.stepDone(lastStep);
+        return this.batchControl.stepDone(lastStep);
     }
 
     /**
      * Tell opp ventetid.
      *
-     * @param steg Hvilket steg
+     * @param step Hvilket steg
      */
     @Override
-    public void addWait(final int steg) {
-        batchCounter.addWait(steg);
+    public void incWait(final int step) {
+        this.batchCounter.incWait(step);
     }
 
     /**
@@ -241,19 +236,8 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
      * @param data Data
      */
     private void addIfDefined(final String data) {
-        if ( data == null || data.length()==0 || data.trim().length() == 0 ) {
-            return;
-        }
+        if ( data == null || data.length()==0 || data.trim().length() == 0 ) return;
         addData(data);
-    }
-
-    /**
-     * Legg til et vanlig felt.
-     *
-     * @param p1 Feltinnhold
-     */
-    private void addData(final String p1) {
-        addData(new String[] { p1 });
     }
 
     /**
@@ -309,7 +293,7 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
      */
     @Override
     public int getTotal(final int step) {
-        return batchCounter.getTotal(step);
+        return this.batchCounter.getTotal(step);
     }
 
     /**
@@ -320,12 +304,12 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
      */
     @Override
     public int getErr(final int step) {
-        return batchCounter.getErr(step);
+        return this.batchCounter.getErr(step);
     }
 
     @Override
     public int getWait(final int step) {
-        return batchCounter.getWait(step);
+        return this.batchCounter.getWait(step);
     }
 
     /**
@@ -341,5 +325,15 @@ public class BatchResult implements ThreadControl, ResultCounter, SimpleLog {
     @Override
     public boolean isDebug() {
         return this.batchLogger.isDebug();
+    }
+
+    @SuppressWarnings("unused")
+    public String getFileName() {
+        return this.fileName;
+    }
+
+    @SuppressWarnings("unused")
+    public void setFileName(final String fileName) {
+        this.fileName = fileName;
     }
 }

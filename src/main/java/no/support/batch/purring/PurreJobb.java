@@ -2,6 +2,7 @@ package no.support.batch.purring;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -16,13 +17,13 @@ import no.support.batch.factory.ResultFactory;
 /**
  * Jobb som på magisk vis på purrer på saker som viser manglende fremdrift.
  * Forretningslogikken er utelatt her (den kan sikkert legges på med run time
- * weaving av aspekter hvis vi trenger den :-).
+ * weaving av aspekter hvis vi trenger den ;-).
  *
  * Jobben har en instans av {@link PurreJobbResultat}
  * som benyttes for synkronisering mellom tråder, rapportering av resultat osv.
  * Gisp.
  */
-public class PurreJobb extends Thread {
+class PurreJobb extends Thread {
 
     /** Antall tråder. */
     private static final int THREADS= 24;
@@ -42,14 +43,14 @@ public class PurreJobb extends Thread {
     private static final int MAXPROD= 100;
 
     /** Kommunikasjon. */
-    static BlockingQueue<Sak> q= new LinkedBlockingQueue<>(QSIZE);
+    private static final BlockingQueue<Sak> q= new LinkedBlockingQueue<>(QSIZE);
     /** Teller. */
-    static AtomicInteger neste= new AtomicInteger(FIRST_NO);
+    private static final AtomicInteger neste= new AtomicInteger(FIRST_NO);
 
     /** Det er denne vi jobber med... */
     PurreJobbResultat resultat;
     /** Det er denne vi jobber med... */
-    ThreadControl jobCtrl;
+    private ThreadControl jobCtrl;
 
     /** Ha med debug? */
     private final boolean withDebug;
@@ -166,7 +167,11 @@ public class PurreJobb extends Thread {
             while (true) {
                 try {
                     final Sak sak= q.poll(Q_WAIT_READ, TimeUnit.MILLISECONDS);
-                    if ( sak!=null ) {
+                    if (sak == null) {
+                        if ( this.jobControl.stepDone(this.stepNo-1) )  break; // Produksjon ferdig
+                        this.result.incWait(this.stepNo);
+                    }
+                    else {
                         this.result.incTotal(this.stepNo);
                         if (( sak.getSakNr() % ERR_FREQ) ==0) {
                             this.result.incErr(this.stepNo);
@@ -175,12 +180,6 @@ public class PurreJobb extends Thread {
                         else {
                             this.result.addSaker(1);
                         }
-                    }
-                    else {
-                        if ( this.jobControl.stepDone(this.stepNo-1) ) {
-                            break; // Produksjon ferdig
-                        }
-                        this.result.addWait(this.stepNo);
                     }
                     sleep(SLEEP);
                 }
@@ -216,10 +215,11 @@ public class PurreJobb extends Thread {
      */
     @Override
     public void run() {
-        final PurreJobbResultat ctrl=
+        final Optional<PurreJobbResultat> ctrl=
                 ResultFactory.createResult(PurreJobbResultat.class, this.withDebug);
-        this.jobCtrl= ctrl;
-        this.resultat= ctrl;
+        if (!ctrl.isPresent()) throw new RuntimeException("Feilkonfigurert...");
+        this.jobCtrl= ctrl.get();
+        this.resultat= ctrl.get();
         this.jobCtrl.threadsUp(0, this);
         for (int i=0; i<THREADS/3; i++) {
             new Thread(new Producer(1, this.jobCtrl, this.resultat)).start();
@@ -248,10 +248,9 @@ public class PurreJobb extends Thread {
             }
         }
         try {
-            this.resultat.report(
-                                        new DocumentHeaderFooter(true, true, this.toString(),
-                                                                 new Date().toString(), "lre", "",
-                                                                 "", ""));
+            this.resultat.report(new DocumentHeaderFooter(true, true, this.toString(),
+                                                          new Date().toString(), "lre", "",
+                                                          "", ""));
         }
         catch (final IOException e) {
             e.printStackTrace();

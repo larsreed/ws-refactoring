@@ -3,16 +3,22 @@ package no.support.batch;
 /**
  * Interface for telling.
  */
-public interface ResultCounter {
-    int incTotal(int steg);
+interface ResultCounter {
+    /** Øk antall totalt for steg N. */
+    int incTotal(int step);
 
-    int incErr(int steg);
+    /** Øk antall feil for steg N. */
+    int incErr(int step);
 
-    void addWait(int steg);
+    /** Øk antall ventet for steg N. */
+    void incWait(int step);
 
+    /** Hent antall totalt for steg N. */
     int getTotal(int step);
 
+    /** Hent antall feil for steg N. */
     int getErr(int step);
 
+    /** Hent antall ventet for steg N. */
     int getWait(int step);
 }

@@ -40,28 +40,12 @@ public class DocumentTable<T> {
      * @param data Forekomstene
      * @return this
      */
-    public DocumentTable<T> addLine(final T... data) {
+    @SafeVarargs
+    @SuppressWarnings("UnusedReturnValue")
+    public final DocumentTable<T> addLine(final T... data) {
         if ( data==null ) return this;
         if ( data.length != this.cols ) throw new IllegalArgumentException(data.length + "!=" +this.cols);
         this.list.add(data);
-        return this;
-    }
-
-    /**
-     * Legg til mange datarader.
-     *
-     * @param data En liste med 1 rad påtre nivå, feltene på indre nivå
-     * @return this
-     */
-    public DocumentTable<T> addLines(final List<T[]> data) {
-        if ( data== null ) return this;
-        for (final T[] row : data) {
-            if ( row==null ) return this;
-            if ( row.length != this.cols ) {
-                throw new IllegalArgumentException(row.length + "!=" +this.cols);
-            }
-            this.list.add(row);
-        }
         return this;
     }
 
@@ -71,11 +55,10 @@ public class DocumentTable<T> {
      * @param data Overskriftene
      * @return this
      */
+    @SuppressWarnings("UnusedReturnValue")
     public DocumentTable<T> addHeadings(final String... data) {
         if ( data==null ) return this;
-        if ( data.length != this.cols) {
-            throw new IllegalArgumentException(data.length + "!=" +this.cols);
-        }
+        if ( data.length != this.cols) throw new IllegalArgumentException(data.length + "!=" +this.cols);
         this.titles = data;
         return this;
     }
@@ -85,36 +68,27 @@ public class DocumentTable<T> {
      * @param contents Buffer vi skriver til
      */
     public void write(final StringBuilder contents) {
-        writeTableHead(this.tableName, this.cols, this.list.size(),
-                       contents, this.titles);
+        writeTableHead(contents, this.titles);
         this.list.forEach(data -> writeTableRow(contents, data));
     }
 
 
     /**
      * Skriv starten av en tabell.
-     *
-     * @param name Feltnavn
-     * @param cols Antall kolonner i tabellen
-     * @param rows Antall rader i tabellen
      * @param buffer Buffer vi skriver til
-     * @param pTitles Overskriftene
+     * @param titles Overskriftene
      */
-    private void writeTableHead(final String name,
-                                final int cols, final int rows, final StringBuilder buffer,
-                                final String... pTitles) {
+    private void writeTableHead(final StringBuilder buffer,
+                                final String... titles) {
         buffer.append("\n");
-        for (final String title : pTitles) {
-            buffer.append(title)
-                  .append("\t");
-        }
-        buffer.append("\n");
+        writeTableRow(buffer, (Object[])titles);
     }
 
     /**
      * Skriv rad i en tabell.
      * @param buffer Buffer vi skriver til
      * @param data Kolonnene
+     *
      */
     private void writeTableRow(final StringBuilder buffer, final Object... data) {
         if ( data==null ) return;

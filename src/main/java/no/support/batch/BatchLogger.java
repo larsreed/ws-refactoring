@@ -1,9 +1,13 @@
 package no.support.batch;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+/** Implementasjon av SimpleLog. */
 public class BatchLogger implements SimpleLog {
+
     /** Debugmodus? */
     private final boolean debug;
     /** Meldingslager. */
@@ -20,13 +24,8 @@ public class BatchLogger implements SimpleLog {
      */
     @Override
     public synchronized void debug(final Object... info) {
-        final String s = concat(" ", info);
-        if (!((s == null || s.length() == 0 || s.trim().length() == 0))) {
-            final Object[] s1 = {s};
-            if (this.debug) {
-                System.err.println(concat(" ", s1));
-            }
-        }
+        if (!this.debug) return;
+        System.err.println(concat(" ", info));
     }
 
     /**
@@ -37,10 +36,8 @@ public class BatchLogger implements SimpleLog {
     @Override
     public synchronized void log(final Object... info) {
         final String s = concat(" ", info);
-        if (!((s == null || s.length() == 0 || s.trim().length() == 0))) {
-            this.messages.add(s);
-        }
-        debug(info);
+        if (!s.isEmpty()) this.messages.add(s);
+        debug(s);
     }
 
     /**
@@ -64,19 +61,11 @@ public class BatchLogger implements SimpleLog {
      *
      * @param separator Hvordan delene skal skilles av
      * @param args Alt som skal skjøtes
-     * @return Herlig røre (<code>null</code> hvis ingen input)
+     * @return Herlig røre
      */
     private String concat(final String separator, final Object... args) {
-        if ( args==null ) return null;
-        final StringBuilder buf= new StringBuilder();
-        int rest= args.length;
-        for (final Object object : args) {
-            buf.append(object);
-            rest--;
-            if ( rest> 0 ) {
-                buf.append(separator);
-            }
-        }
-        return buf.toString();
+        return args==null? ""
+                         : Arrays.stream(args).filter(e->e!=null)
+                                   .map(Object::toString).collect(Collectors.joining(separator));
     }
 }

@@ -3,14 +3,18 @@ package no.support.batch;
 import java.util.List;
 
 /**
- * Created by larsr_000 on 03.06.2015.
+ * Logginterface.
  */
-public interface SimpleLog {
+interface SimpleLog {
+    /** Skriv debuginfo hvis debug er på. */
     void debug(Object... info);
 
+    /** Lagre logginfo. */
     void log(Object... info);
 
+    /** Hent ut loggmeldinger. */
     List<String> getMessages();
 
+    /** Sjekk om debug er på. */
     boolean isDebug();
 }

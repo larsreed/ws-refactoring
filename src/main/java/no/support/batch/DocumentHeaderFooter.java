@@ -1,65 +1,65 @@
 package no.support.batch;
 
 /**
- * Topp- og bunntekst i rapporter.
+ * Topp- og bunntekst i rapporter (immutable).
  */
 public class DocumentHeaderFooter {
 
     private final boolean useHeader;
     private final boolean useFooter;
 
-    private final String overskrift1;
-    private final String overskrift2;
-    private final String overskrift3;
-    private final String underskrift1;
-    private final String underskrift2;
-    private final String underskrift3;
+    private final String headerLeft;
+    private final String headerCenter;
+    private final String headerRight;
+    private final String footerLeft;
+    private final String footerCenter;
+    private final String footerRight;
 
     public DocumentHeaderFooter(final boolean useHeader, final boolean useFooter,
-                                final String overskrift1, final String overskrift2,
-                                final String overskrift3, final String underskrift1,
-                                final String underskrift2, final String underskrift3) {
+                                final String headerLeft, final String headerCenter,
+                                final String headerRight, final String footerLeft,
+                                final String footerCenter, final String footerRight) {
         this.useHeader = useHeader;
         this.useFooter = useFooter;
-        this.overskrift1 = overskrift1;
-        this.overskrift2 = overskrift2;
-        this.overskrift3 = overskrift3;
-        this.underskrift1 = underskrift1;
-        this.underskrift2 = underskrift2;
-        this.underskrift3 = underskrift3;
+        this.headerLeft = headerLeft;
+        this.headerCenter = headerCenter;
+        this.headerRight = headerRight;
+        this.footerLeft = footerLeft;
+        this.footerCenter = footerCenter;
+        this.footerRight = footerRight;
     }
 
-    public String getOverskrift1() {
-        return overskrift1;
+    public String getHeaderLeft() {
+        return this.headerLeft;
     }
 
-    public String getOverskrift2() {
-        return overskrift2;
+    public String getHeaderCenter() {
+        return this.headerCenter;
     }
 
-    public String getOverskrift3() {
-        return overskrift3;
+    public String getHeaderRight() {
+        return this.headerRight;
     }
 
-    public String getUnderskrift1() {
-        return underskrift1;
+    public String getFooterLeft() {
+        return this.footerLeft;
     }
 
-    public String getUnderskrift2() {
-        return underskrift2;
+    public String getFooterCenter() {
+        return this.footerCenter;
     }
 
-    public String getUnderskrift3() {
-        return underskrift3;
+    public String getFooterRight() {
+        return this.footerRight;
     }
 
     /** Bruke topptekst? */
-    public boolean isUseHeader() {
-        return useHeader;
+    public boolean useHeader() {
+        return this.useHeader;
     }
 
     /** Bruke bunntekst? */
-    public boolean isUseFooter() {
-        return useFooter;
+    public boolean useFooter() {
+        return this.useFooter;
     }
 }

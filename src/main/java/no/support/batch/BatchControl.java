@@ -1,19 +1,24 @@
 package no.support.batch;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
+/**
+ * Klassen har ansvaret for å holde orden på trådene som kjører.
+ */
 public class BatchControl implements ThreadControl {
+
     /** 1 trådteller for hvert steg. */
-    private final AtomicInteger[] threadCounter;
+    private final AtomicIntegerArray threadCounter;
     /** 1 trådflagg for hvert steg. */
     private final boolean[] threadStarted;
 
+    /**
+     * Standard constructor.
+     * @param steps Antall steg vi skal holde styr på
+     */
     public BatchControl(final int steps) {
         this.threadStarted = new boolean[steps];
-        this.threadCounter = new AtomicInteger[steps];
-        for (int i=0; i< steps; i++) {
-            this.threadCounter[i]= new AtomicInteger();
-        }
+        this.threadCounter = new AtomicIntegerArray(steps);
     }
 
     /**
@@ -25,7 +30,7 @@ public class BatchControl implements ThreadControl {
      */
     @Override
     public int threadsUp(final int step, final Object caller) {
-        this.threadCounter[step].incrementAndGet();
+        this.threadCounter.incrementAndGet(step);
         this.threadStarted[step] = true;
         return getThreadCount();
     }
@@ -39,20 +44,20 @@ public class BatchControl implements ThreadControl {
      */
     @Override
     public int threadsDown(final int step, final Object caller) {
-        this.threadCounter[step].decrementAndGet();
+        this.threadCounter.decrementAndGet(step);
         return getThreadCount();
     }
 
     /**
-     * Returnerer antall aktive trår totalt.
+     * Returnerer antall aktive tråder totalt.
      *
      * @return Barnetråder
      */
     @Override
     public int getThreadCount() {
-        int sum = 0;
-        for (final AtomicInteger i : this.threadCounter) {
-            sum += i.get();
+        int sum= 0;
+        for (int i = 0; i < this.threadCounter.length(); i++) {
+            sum += this.threadCounter.get(i);
         }
         return sum;
     }
@@ -67,6 +72,6 @@ public class BatchControl implements ThreadControl {
     public synchronized boolean stepDone(final int lastStep) {
         return this.threadStarted[lastStep]
                        &&
-                       (0 >= this.threadCounter[lastStep].get());
+                       (0 >= this.threadCounter.get(lastStep));
     }
 }

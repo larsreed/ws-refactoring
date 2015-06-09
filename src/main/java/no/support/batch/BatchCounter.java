@@ -1,56 +1,52 @@
 package no.support.batch;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 
 public class BatchCounter implements ResultCounter {
+
     /** 1 vente-teller for hvert steg. */
-    private final AtomicInteger[] waitCounter;
+    private final AtomicIntegerArray waitCounter;
     /** 1 OK-teller for hvert steg. */
-    private final AtomicInteger[] total;
+    private final AtomicIntegerArray total;
     /** 1 feilteller for hvert steg. */
-    private final AtomicInteger[] errCounter;
+    private final AtomicIntegerArray errCounter;
 
     public BatchCounter(final int steps) {
-        this.waitCounter = new AtomicInteger[steps];
-        this.total = new AtomicInteger[steps];
-        this.errCounter = new AtomicInteger[steps];
-        for (int i=0; i< steps; i++) {
-            this.waitCounter[i]= new AtomicInteger();
-            this.total[i]= new AtomicInteger();
-            this.errCounter[i]= new AtomicInteger();
-        }
+        this.waitCounter = new AtomicIntegerArray(steps);
+        this.total = new AtomicIntegerArray(steps);
+        this.errCounter = new AtomicIntegerArray(steps);
     }
 
     /**
      * Tell opp antall totalt.
      *
-     * @param steg Hvilket steg
+     * @param step Hvilket steg
      * @return Antall totalt etter oppdatering
      */
     @Override
-    public int incTotal(final int steg) {
-        return this.total[steg].incrementAndGet();
+    public int incTotal(final int step) {
+        return this.total.incrementAndGet(step);
     }
 
     /**
      * Tell opp antall feil.
      *
-     * @param steg Hvilket steg
+     * @param step Hvilket steg
      * @return Antall totalt etter oppdatering
      */
     @Override
-    public int incErr(final int steg) {
-        return this.errCounter[steg].incrementAndGet();
+    public int incErr(final int step) {
+        return this.errCounter.incrementAndGet(step);
     }
 
     /**
      * Tell opp ventetid.
      *
-     * @param steg Hvilket steg
+     * @param step Hvilket steg
      */
     @Override
-    public void addWait(final int steg) {
-        this.waitCounter[steg].incrementAndGet();
+    public void incWait(final int step) {
+        this.waitCounter.incrementAndGet(step);
     }
 
     /**
@@ -61,7 +57,7 @@ public class BatchCounter implements ResultCounter {
      */
     @Override
     public int getTotal(final int step) {
-        return this.total[step].get();
+        return this.total.get(step);
     }
 
     /**
@@ -72,11 +68,11 @@ public class BatchCounter implements ResultCounter {
      */
     @Override
     public int getErr(final int step) {
-        return this.errCounter[step].get();
+        return this.errCounter.get(step);
     }
 
     @Override
     public int getWait(final int step) {
-        return this.waitCounter[step].get();
+        return this.waitCounter.get(step);
     }
 }
