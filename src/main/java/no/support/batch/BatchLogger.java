@@ -3,6 +3,7 @@ package no.support.batch;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /** Implementasjon av SimpleLog. */
@@ -57,15 +58,15 @@ public class BatchLogger implements SimpleLog {
     }
 
     /**
-     * Slå sammen strenger til én lang streng.
+     * Slï¿½ sammen strenger til ï¿½n lang streng.
      *
      * @param separator Hvordan delene skal skilles av
-     * @param args Alt som skal skjøtes
-     * @return Herlig røre
+     * @param args Alt som skal skjï¿½tes
+     * @return Herlig rï¿½re
      */
     private String concat(final String separator, final Object... args) {
         return args==null? ""
-                         : Arrays.stream(args).filter(e->e!=null)
+                         : Arrays.stream(args).filter(Objects::nonNull)
                                    .map(Object::toString).collect(Collectors.joining(separator));
     }
 }

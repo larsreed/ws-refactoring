@@ -217,9 +217,9 @@ class PurreJobb extends Thread {
     public void run() {
         final Optional<PurreJobbResultat> ctrl=
                 ResultFactory.createResult(PurreJobbResultat.class, this.withDebug);
-        if (!ctrl.isPresent()) throw new RuntimeException("Feilkonfigurert...");
-        this.jobCtrl= ctrl.get();
-        this.resultat= ctrl.get();
+        final PurreJobbResultat purreJobbResultat = ctrl.orElseThrow(() -> new RuntimeException("Feilkonfigurert"));
+        this.jobCtrl= purreJobbResultat;
+        this.resultat= purreJobbResultat;
         this.jobCtrl.threadsUp(0, this);
         for (int i=0; i<THREADS/3; i++) {
             new Thread(new Producer(1, this.jobCtrl, this.resultat)).start();
