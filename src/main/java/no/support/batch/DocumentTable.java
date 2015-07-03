@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class DocumentTable<T> {
 
-    /** Navnet på tabellen. */
+    /** Navnet pÃ¥ tabellen. */
     private final String tableName;
 
     /** Antall kolonner. */
@@ -24,7 +24,7 @@ public class DocumentTable<T> {
     /**
      * Default constructor.
      *
-     * @param tabName Navn på tabellen
+     * @param tabName Navn pÃ¥ tabellen
      * @param noOfCols Antall kolonner i tabellen
      */
     public DocumentTable(final String tabName, final int noOfCols) {

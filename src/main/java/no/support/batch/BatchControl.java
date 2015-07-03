@@ -3,18 +3,18 @@ package no.support.batch;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 /**
- * Klassen har ansvaret for å holde orden på trådene som kjører.
+ * Klassen har ansvaret for Ã¥ holde orden pÃ¥ trÃ¥dene som kjÃ¸rer.
  */
 public class BatchControl implements ThreadControl {
 
-    /** 1 trådteller for hvert steg. */
+    /** 1 trÃ¥dteller for hvert steg. */
     private final AtomicIntegerArray threadCounter;
-    /** 1 trådflagg for hvert steg. */
+    /** 1 trÃ¥dflagg for hvert steg. */
     private final boolean[] threadStarted;
 
     /**
      * Standard constructor.
-     * @param steps Antall steg vi skal holde styr på
+     * @param steps Antall steg vi skal holde styr pÃ¥
      */
     public BatchControl(final int steps) {
         this.threadStarted = new boolean[steps];
@@ -22,11 +22,11 @@ public class BatchControl implements ThreadControl {
     }
 
     /**
-     * Øk antall tråder med 1.
+     * Ã˜k antall trÃ¥der med 1.
      *
      * @param step   Steg nummer
      * @param caller Hvem ringer
-     * @return Antall tråder nå
+     * @return Antall trÃ¥der nÃ¥
      */
     @Override
     public int threadsUp(final int step, final Object caller) {
@@ -36,11 +36,11 @@ public class BatchControl implements ThreadControl {
     }
 
     /**
-     * Reduser antall tråder med 1.
+     * Reduser antall trÃ¥der med 1.
      *
      * @param step   Steg nummer
      * @param caller Hvem ringer
-     * @return Antall trår nå
+     * @return Antall trÃ¥r nÃ¥
      */
     @Override
     public int threadsDown(final int step, final Object caller) {
@@ -49,9 +49,9 @@ public class BatchControl implements ThreadControl {
     }
 
     /**
-     * Returnerer antall aktive tråder totalt.
+     * Returnerer antall aktive trÃ¥der totalt.
      *
-     * @return Barnetråder
+     * @return BarnetrÃ¥der
      */
     @Override
     public int getThreadCount() {

@@ -4,13 +4,13 @@ package no.support.batch;
  * Interface for telling.
  */
 interface ResultCounter {
-    /** Øk antall totalt for steg N. */
+    /** Ã˜k antall totalt for steg N. */
     int incTotal(int step);
 
-    /** Øk antall feil for steg N. */
+    /** Ã˜k antall feil for steg N. */
     int incErr(int step);
 
-    /** Øk antall ventet for steg N. */
+    /** Ã˜k antall ventet for steg N. */
     void incWait(int step);
 
     /** Hent antall totalt for steg N. */

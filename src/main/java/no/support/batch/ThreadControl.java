@@ -1,16 +1,16 @@
 package no.support.batch;
 
 /**
- * Interface for trådkontroll.
+ * Interface for trÃ¥dkontroll.
  */
 public interface ThreadControl {
-    /** Øk antall tråder. */
+    /** Ã˜k antall trÃ¥der. */
     int threadsUp(int step, Object caller);
 
-    /** Reduser antall tråder. */
+    /** Reduser antall trÃ¥der. */
     int threadsDown(int step, Object caller);
 
-    /** Hent antall tråder. */
+    /** Hent antall trÃ¥der. */
     int getThreadCount();
 
     /** Sjekk om forrige steg er ferdig. */

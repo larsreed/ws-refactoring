@@ -30,13 +30,13 @@ public abstract class BatchResult implements ThreadControl, ResultCounter, Simpl
     private final ResultCounter batchCounter;
     /** Logging. */
     private final SimpleLog batchLogger;
-    /** Holder på feltverdier. */
+    /** Holder pÃ¥ feltverdier. */
     private final List<String[]> reportData= new LinkedList<>();
     /** Referanser til tabeller. */
     private final List<DocumentTable<String>> tables= new LinkedList<>();
     /** Antall steg. */
     private final int steps;
-    /** Holder på data som en ganske vanlig streng. */
+    /** Holder pÃ¥ data som en ganske vanlig streng. */
     private String data;
 
     /** Resultatfil. */
@@ -47,7 +47,7 @@ public abstract class BatchResult implements ThreadControl, ResultCounter, Simpl
     /**
      * Standard constructor.
      * @param step Antall steg i prosessen
-     * @param debug Debug på?
+     * @param debug Debug pÃ¥?
      * @param batchLogger Logger
      * @param batchCounter Teller
      * @param batchControl Kontrollmekanisme
@@ -91,7 +91,7 @@ public abstract class BatchResult implements ThreadControl, ResultCounter, Simpl
         save(resultFile);
     }
 
-    /** Formater "nå" som datostreng. */
+    /** Formater "nÃ¥" som datostreng. */
     private static String formatNow(final String pattern) {
         return new SimpleDateFormat(pattern).format(new Date());
     }
@@ -156,11 +156,11 @@ public abstract class BatchResult implements ThreadControl, ResultCounter, Simpl
     }
 
     /**
-     * Øk antall tråder med 1.
+     * Ã˜k antall trÃ¥der med 1.
      *
      * @param step Steg nummer
      * @param caller Hvem ringer
-     * @return Antall tråder nå
+     * @return Antall trÃ¥der nÃ¥
      */
     @Override
     public int threadsUp(final int step, final Object caller) {
@@ -168,11 +168,11 @@ public abstract class BatchResult implements ThreadControl, ResultCounter, Simpl
     }
 
     /**
-     * Reduser antall tråder med 1.
+     * Reduser antall trÃ¥der med 1.
      *
      * @param step Steg nummer
      * @param caller Hvem ringer
-     * @return Antall trår nå
+     * @return Antall trÃ¥r nÃ¥
      */
     @Override
     public int threadsDown(final int step, final Object caller) {
@@ -180,9 +180,9 @@ public abstract class BatchResult implements ThreadControl, ResultCounter, Simpl
     }
 
     /**
-     * Returnerer antall aktive trår totalt.
+     * Returnerer antall aktive trÃ¥r totalt.
      *
-     * @return Barnetråder
+     * @return BarnetrÃ¥der
      */
     @Override
     public int getThreadCount() {

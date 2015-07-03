@@ -6,7 +6,7 @@ import java.util.List;
  * Logginterface.
  */
 interface SimpleLog {
-    /** Skriv debuginfo hvis debug er på. */
+    /** Skriv debuginfo hvis debug er pÃ¥. */
     void debug(Object... info);
 
     /** Lagre logginfo. */
@@ -15,6 +15,6 @@ interface SimpleLog {
     /** Hent ut loggmeldinger. */
     List<String> getMessages();
 
-    /** Sjekk om debug er på. */
+    /** Sjekk om debug er pÃ¥. */
     boolean isDebug();
 }
