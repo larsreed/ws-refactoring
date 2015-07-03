@@ -11,8 +11,22 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-# IDEA etc
-.idea
-
 # Testfiler fra programmet
 statusfix*
+
+# Maven og Eclipse-ting
+target/
+.project
+.classpath
+.settings/
+*versionsBackup
+
+# IDEA-ting
+*.iml
+*.ipr
+*.iws
+*.ids
+/.idea
+
+# Mac-relatert
+.DS_Store
