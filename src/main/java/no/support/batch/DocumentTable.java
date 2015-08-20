@@ -1,5 +1,6 @@
 package no.support.batch;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -97,5 +98,16 @@ public class DocumentTable<T> {
                   .append('\t');
         }
         buffer.append('\n');
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder("DocumentTable{")
+          .append("tableName='").append(tableName).append('\'')
+          .append(", cols=").append(cols)
+          .append(", list=").append(list)
+          .append(", titles=").append(Arrays.toString(titles))
+          .append('}')
+          .toString();
     }
 }
