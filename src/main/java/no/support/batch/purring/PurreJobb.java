@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import no.support.batch.BatchResult;
 import no.support.batch.DocumentHeaderFooter;
+import no.support.batch.DocumentHeaderFooter.DocumentHeaderFooterBuilder;
 import no.support.batch.ThreadControl;
 import no.support.batch.factory.ResultFactory;
 
@@ -248,9 +249,13 @@ class PurreJobb extends Thread {
             }
         }
         try {
-            this.resultat.report(new DocumentHeaderFooter(true, true, this.toString(),
-                                                          new Date().toString(), "lre", "",
-                                                          "", ""));
+            final DocumentHeaderFooter headFoot = new DocumentHeaderFooterBuilder().useHeader(true)
+                                                          .useFooter(true)
+                                                          .headerLeft(this.toString())
+                                                          .headerCenter(new Date().toString())
+                                                          .headerRight("lre")
+                                                          .build();
+            this.resultat.report(headFoot);
         }
         catch (final IOException e) {
             e.printStackTrace();

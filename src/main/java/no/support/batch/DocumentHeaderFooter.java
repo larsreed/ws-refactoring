@@ -62,4 +62,60 @@ public class DocumentHeaderFooter {
     public boolean useFooter() {
         return this.useFooter;
     }
+
+    public static class DocumentHeaderFooterBuilder {
+        private boolean useHeader = false;
+        private boolean useFooter = false;
+        private String headerLeft = "";
+        private String headerCenter = "";
+        private String headerRight = "";
+        private String footerLeft = "";
+        private String footerCenter = "";
+        private String footerRight = "";
+
+        public DocumentHeaderFooterBuilder useHeader(final boolean useHeader) {
+            this.useHeader = useHeader;
+            return this;
+        }
+
+        public DocumentHeaderFooterBuilder useFooter(final boolean useFooter) {
+            this.useFooter = useFooter;
+            return this;
+        }
+
+        public DocumentHeaderFooterBuilder headerLeft(final String headerLeft) {
+            this.headerLeft = headerLeft;
+            return this;
+        }
+
+        public DocumentHeaderFooterBuilder headerCenter(final String headerCenter) {
+            this.headerCenter = headerCenter;
+            return this;
+        }
+
+        public DocumentHeaderFooterBuilder headerRight(final String headerRight) {
+            this.headerRight = headerRight;
+            return this;
+        }
+
+        public DocumentHeaderFooterBuilder footerLeft(final String footerLeft) {
+            this.footerLeft = footerLeft;
+            return this;
+        }
+
+        public DocumentHeaderFooterBuilder footerCenter(final String footerCenter) {
+            this.footerCenter = footerCenter;
+            return this;
+        }
+
+        public DocumentHeaderFooterBuilder footerRight(final String footerRight) {
+            this.footerRight = footerRight;
+            return this;
+        }
+
+        public DocumentHeaderFooter build() {
+            return new DocumentHeaderFooter(useHeader, useFooter, headerLeft, headerCenter, headerRight,
+                                            footerLeft, footerCenter, footerRight);
+        }
+    }
 }
